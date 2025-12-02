@@ -1,0 +1,15 @@
+backend/node_modules/
+backend/.env
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+backend/dist/
+
+# Root ignores
+node_modules/
+.env
+.DS_Store
+*.log
+dist/
+build/
+
