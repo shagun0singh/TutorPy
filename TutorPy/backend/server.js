@@ -149,8 +149,13 @@ app.get('/', (req, res) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 TutorPy backend running on http://localhost:${PORT}`);
-});
+// Start server (only in local development)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🚀 TutorPy backend running on http://localhost:${PORT}`);
+    });
+}
+
+// Export app for Vercel serverless functions
+module.exports = app;
 
