@@ -1,10 +1,10 @@
 {
   "version": 2,
+  "buildCommand": "cd frontend-react && npm install && npm run build",
+  "outputDirectory": "frontend-react/.next",
+  "installCommand": "cd frontend-react && npm install",
+  "framework": "nextjs",
   "builds": [
-    {
-      "src": "frontend-react/package.json",
-      "use": "@vercel/next"
-    },
     {
       "src": "backend/server.js",
       "use": "@vercel/node"
@@ -17,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "frontend-react/$1"
+      "dest": "/frontend-react/$1"
     }
   ]
 }
