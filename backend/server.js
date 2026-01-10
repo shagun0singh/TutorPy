@@ -24,11 +24,28 @@ connectDB();
 // Middleware
 // CORS configuration - allow frontend from Vercel and localhost
 app.use(cors({
-    origin: [
-        'http://localhost:3000', // Local development
-        'https://*.vercel.app', // All Vercel deployments
-        process.env.FRONTEND_URL // Custom frontend URL if set
-    ].filter(Boolean), // Remove undefined values
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        
+        // Allow localhost for development
+        if (origin.startsWith('http://localhost')) {
+            return callback(null, true);
+        }
+        
+        // Allow all Vercel deployments (any subdomain of vercel.app)
+        if (origin.includes('.vercel.app')) {
+            return callback(null, true);
+        }
+        
+        // Allow custom frontend URL if set
+        if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) {
+            return callback(null, true);
+        }
+        
+        // Default: allow all origins (for now - can restrict later)
+        callback(null, true);
+    },
     credentials: true
 }));
 app.use(express.json()); // Parse JSON request bodies

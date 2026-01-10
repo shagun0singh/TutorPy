@@ -37,6 +37,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(data, { status: backendResponse.status });
     }
     
+    // If NEXT_PUBLIC_API_URL is not set, return helpful error
+    console.error('❌ NEXT_PUBLIC_API_URL is not set! Frontend should call Railway backend directly.');
+    return NextResponse.json(
+      { 
+        error: 'Backend configuration error. NEXT_PUBLIC_API_URL environment variable is not set in Vercel. Please set it to your Railway backend URL.',
+        hint: 'Set NEXT_PUBLIC_API_URL in Vercel Dashboard → Settings → Environment Variables'
+      },
+      { status: 500 }
+    );
+    
     // Verify authentication (only if using Next.js API route)
     const token = getTokenFromRequest(req);
     if (!token) {
