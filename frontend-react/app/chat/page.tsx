@@ -94,6 +94,14 @@ export default function ChatPage() {
       } else {
         let errorMessage = data.error || "Sorry, I encountered an error. Please try again.";
         
+        // Log full error for debugging
+        console.error('❌ Chat API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          data: data
+        });
+        
         // Handle specific auth errors
         if (response.status === 401) {
           if (data.error?.includes('token')) {
