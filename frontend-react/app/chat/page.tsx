@@ -74,6 +74,7 @@ export default function ChatPage() {
       const apiUrl = API_ENDPOINTS.chat();
       console.log('🔗 Calling API:', apiUrl);
       console.log('🔑 Token present:', !!token);
+      console.log('🌍 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'NOT SET');
       
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -84,8 +85,10 @@ export default function ChatPage() {
         body: JSON.stringify({ message: userMessage }),
       });
 
-      const data = await response.json();
       console.log('📥 Response status:', response.status);
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const data = await response.json();
       console.log('📥 Response data:', data);
 
       if (response.ok) {
@@ -117,10 +120,22 @@ export default function ChatPage() {
           { text: errorMessage, type: "ai" },
         ]);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Network or API call error:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      let errorMessage = "Network error. Please check your connection.";
+      if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       setMessages((prev) => [
         ...prev,
-        { text: "Network error. Please check your connection.", type: "ai" },
+        { text: errorMessage, type: "ai" },
       ]);
     } finally {
       setLoading(false);

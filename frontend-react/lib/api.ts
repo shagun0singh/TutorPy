@@ -15,17 +15,25 @@ export const apiUrl = (endpoint: string) => {
   
   // If baseUrl is set, use it (separate backend)
   if (baseUrl) {
-    // Remove leading slash from endpoint if baseUrl already has trailing slash
+    // Ensure endpoint starts with /
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const fullUrl = `${baseUrl}${cleanEndpoint}`;
+    // Remove trailing slash from baseUrl if present
+    const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+    const fullUrl = `${cleanBaseUrl}${cleanEndpoint}`;
     if (typeof window !== 'undefined') {
       console.log('🌐 API URL:', fullUrl, '(from NEXT_PUBLIC_API_URL)');
+      console.log('🌐 Base URL:', cleanBaseUrl);
+      console.log('🌐 Endpoint:', cleanEndpoint);
+      console.log('⚠️ If you see this, NEXT_PUBLIC_API_URL is set correctly');
     }
     return fullUrl;
   }
   
   // If no baseUrl, use relative path (Next.js API routes)
   if (typeof window !== 'undefined') {
+    console.warn('⚠️ NEXT_PUBLIC_API_URL is NOT set!');
+    console.warn('⚠️ Frontend will call Next.js API route instead of Railway backend');
+    console.warn('⚠️ This will fail because Next.js route needs env vars (GROQ_API_KEY, etc.)');
     console.log('🌐 API URL:', endpoint, '(Next.js API route - NEXT_PUBLIC_API_URL not set)');
   }
   return endpoint;
