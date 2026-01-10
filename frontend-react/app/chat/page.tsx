@@ -18,6 +18,12 @@ interface Message {
   showEditor?: boolean;
 }
 
+// Debug: Log environment variable at component level
+if (typeof window !== 'undefined') {
+  console.log('🔍 DEBUG: NEXT_PUBLIC_API_URL =', process.env.NEXT_PUBLIC_API_URL || 'NOT SET');
+  console.log('🔍 DEBUG: All NEXT_PUBLIC_ vars:', Object.keys(process.env).filter(k => k.startsWith('NEXT_PUBLIC_')));
+}
+
 export default function ChatPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
