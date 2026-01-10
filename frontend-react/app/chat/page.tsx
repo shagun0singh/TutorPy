@@ -71,7 +71,11 @@ export default function ChatPage() {
         return;
       }
       
-      const response = await fetch(API_ENDPOINTS.chat(), {
+      const apiUrl = API_ENDPOINTS.chat();
+      console.log('🔗 Calling API:', apiUrl);
+      console.log('🔑 Token present:', !!token);
+      
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,14 +85,28 @@ export default function ChatPage() {
       });
 
       const data = await response.json();
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Response data:', data);
 
       if (response.ok) {
         // Show code editor after AI response
         setMessages((prev) => [...prev, { text: data.reply, type: "ai", showEditor: true }]);
       } else {
+        let errorMessage = data.error || "Sorry, I encountered an error. Please try again.";
+        
+        // Handle specific auth errors
+        if (response.status === 401) {
+          if (data.error?.includes('token')) {
+            errorMessage = "Session expired. Please sign in again.";
+            localStorage.removeItem("tutorpy_token");
+            localStorage.removeItem("tutorpy_user");
+            setTimeout(() => router.push("/signin"), 2000);
+          }
+        }
+        
         setMessages((prev) => [
           ...prev,
-          { text: data.error || "Sorry, I encountered an error. Please try again.", type: "ai" },
+          { text: errorMessage, type: "ai" },
         ]);
       }
     } catch (error) {

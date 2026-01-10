@@ -42,7 +42,7 @@ app.use('/api/auth', authRoutes); // Authentication routes (signup, login)
  * Body: { "message": "user message" }
  * Response: { "reply": "AI response" }
  */
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', auth, async (req, res) => {
     try {
         const { message } = req.body;
         

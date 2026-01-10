@@ -15,7 +15,29 @@ function getGroqClient() {
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify authentication
+    // Check if we should use Railway backend instead
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (backendUrl) {
+      // If NEXT_PUBLIC_API_URL is set, this route shouldn't be called
+      // Frontend should call the Railway backend directly
+      // But if it reaches here, proxy to backend
+      const token = getTokenFromRequest(req);
+      const { message } = await req.json();
+      
+      const backendResponse = await fetch(`${backendUrl}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ message }),
+      });
+      
+      const data = await backendResponse.json();
+      return NextResponse.json(data, { status: backendResponse.status });
+    }
+    
+    // Verify authentication (only if using Next.js API route)
     const token = getTokenFromRequest(req);
     if (!token) {
       return NextResponse.json(

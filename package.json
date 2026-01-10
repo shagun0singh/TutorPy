@@ -1,11 +1,5 @@
 {
   "name": "tutorpy",
   "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "vercel-build": "cd frontend-react && npm install && npm run build"
-  },
-  "workspaces": [
-    "frontend-react"
-  ]
+  "private": true
 }

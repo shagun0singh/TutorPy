@@ -17,10 +17,17 @@ export const apiUrl = (endpoint: string) => {
   if (baseUrl) {
     // Remove leading slash from endpoint if baseUrl already has trailing slash
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    return `${baseUrl}${cleanEndpoint}`;
+    const fullUrl = `${baseUrl}${cleanEndpoint}`;
+    if (typeof window !== 'undefined') {
+      console.log('🌐 API URL:', fullUrl, '(from NEXT_PUBLIC_API_URL)');
+    }
+    return fullUrl;
   }
   
   // If no baseUrl, use relative path (Next.js API routes)
+  if (typeof window !== 'undefined') {
+    console.log('🌐 API URL:', endpoint, '(Next.js API route - NEXT_PUBLIC_API_URL not set)');
+  }
   return endpoint;
 };
 
