@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TutorPy - AI Python Learning Tutor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>TutorPy</h1>
+            <p class="subtitle">Your AI Python Learning Tutor</p>
+            <div class="header-buttons">
+                <a href="signin.html" class="header-btn">Sign In</a>
+                <a href="signup.html" class="header-btn header-btn-primary">Sign Up Free</a>
+            </div>
+        </header>
+
+        <!-- Chat Messages Container -->
+        <div class="chat-container" id="chatContainer">
+            <!-- Welcome message -->
+            <div class="message ai-message">
+                <div class="message-content">
+                    <p>👋 Welcome to TutorPy! I'm here to help you learn Python programming.</p>
+                    <p>Try asking me a question - your first message is free! Sign up to continue learning.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <textarea 
+                id="userInput" 
+                placeholder="Try it free: Ask me any Python question..."
+                rows="3"
+            ></textarea>
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <!-- Login Required Modal -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎉 Ready to continue learning?</h2>
+            </div>
+            <div class="modal-body">
+                <p>You've used your free message! Create a free account to continue learning Python with unlimited AI guidance.</p>
+                <div class="modal-features">
+                    <div>✅ Unlimited questions</div>
+                    <div>✅ Step-by-step guidance</div>
+                    <div>✅ Save your progress</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <a href="signup.html" class="btn btn-primary btn-large">Create Free Account</a>
+                <a href="signin.html" class="btn btn-secondary btn-large">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="home.js"></script>
+</body>
+</html>
