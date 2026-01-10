@@ -61,6 +61,16 @@ export default function ChatPage() {
 
     try {
       const token = localStorage.getItem("tutorpy_token");
+      
+      if (!token) {
+        setMessages((prev) => [
+          ...prev,
+          { text: "Please sign in to continue. Redirecting...", type: "ai" },
+        ]);
+        setTimeout(() => router.push("/signin"), 2000);
+        return;
+      }
+      
       const response = await fetch(API_ENDPOINTS.chat(), {
         method: "POST",
         headers: {
