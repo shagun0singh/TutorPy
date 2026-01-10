@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     }
     
     // If NEXT_PUBLIC_API_URL is not set, return helpful error
+    // Note: This code should never execute if NEXT_PUBLIC_API_URL is properly set
+    // because the frontend should call Railway directly
     console.error('❌ NEXT_PUBLIC_API_URL is not set! Frontend should call Railway backend directly.');
     return NextResponse.json(
       { 
@@ -46,76 +48,6 @@ export async function POST(req: NextRequest) {
       },
       { status: 500 }
     );
-    
-    // Verify authentication (only if using Next.js API route)
-    const token = getTokenFromRequest(req);
-    if (!token) {
-      return NextResponse.json(
-        { error: 'No token, authorization denied' },
-        { status: 401 }
-      );
-    }
-    
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return NextResponse.json(
-        { error: 'Token is not valid' },
-        { status: 401 }
-      );
-    }
-    
-    await connectDB();
-    
-    const { message } = await req.json();
-    
-    // Validate input
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 }
-      );
-    }
-    
-    console.log('📩 Received message:', message);
-    
-    // TutorPy system prompt
-    const systemPrompt = `You are TutorPy, an AI coding tutor.
-Your job is to help users THINK, not solve problems.
-Support only Python.
-First decide if the problem statement is clear.
-If unclear, ask concise clarifying questions about input, output, or constraints.
-If clear, respond with:
-'✅ Thinking mode'
-followed by a short explanation of how to approach the problem step by step.
-Do not provide code.
-Do not provide full algorithms.
-Keep responses concise and encouraging (max 4–5 sentences).`;
-    
-    let reply: string;
-    
-    // Check if we should use demo mode
-    if (process.env.DEMO_MODE === 'true') {
-      reply = `✅ Thinking mode\n\nGreat question! To ${message.toLowerCase()}, think about breaking the problem into steps:\n1. First, understand what data structure you're working with\n2. Consider what Python built-in functions or methods might help\n3. Think about edge cases (empty inputs, special characters)\n4. Try writing pseudocode before actual code\n\nTry implementing a solution step by step!`;
-      console.log('🔧 Demo mode active - using simulated response');
-    } else {
-      // Call Groq API
-      const groq = getGroqClient();
-      const chatCompletion = await groq.chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message }
-        ],
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        max_tokens: 200,
-      });
-      
-      reply = chatCompletion.choices[0].message.content || 'Failed to generate response';
-    }
-    
-    console.log('✅ AI reply generated');
-    
-    return NextResponse.json({ reply });
     
   } catch (error: any) {
     console.error('❌ Error processing message:', error.message);
