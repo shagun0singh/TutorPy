@@ -1,31 +1,43 @@
 "use client";
 
 import * as React from "react";
-import { Paperclip, Sparkles } from "lucide-react";
+import { Paperclip, Sparkles, Code } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FlickeringGrid } from "./flickering-grid";
 
 const Hero1 = () => {
   const [inputValue, setInputValue] = React.useState("");
+  const router = useRouter();
 
   const handleGetStarted = () => {
     // Redirect to signup
-    window.location.href = "/signup";
+    router.push("/signup");
   };
 
   const handleSend = () => {
-    if (inputValue.trim()) {
-      // Store the message and redirect to try the free message
-      localStorage.setItem("tutorpy_first_message", inputValue);
-      window.location.href = "/try";
+    if (!inputValue.trim()) return;
+
+    // Check if user is logged in
+    const token = localStorage.getItem("tutorpy_token");
+    
+    if (!token) {
+      // User not logged in - store message and redirect to signin
+      localStorage.setItem("tutorpy_first_message", inputValue.trim());
+      router.push("/signin");
+      return;
     }
+
+    // User is logged in - store message and redirect to chat
+    localStorage.setItem("tutorpy_first_message", inputValue.trim());
+    router.push("/chat");
   };
 
   return (
-    <div className="min-h-screen text-white flex flex-col relative overflow-hidden bg-black">
-      {/* Flickering Grid Background */}
+    <div className="min-h-screen w-full h-full text-white flex flex-col relative overflow-hidden bg-black">
+      {/* Flickering Grid Background - covers entire page */}
       <FlickeringGrid
-        className="z-0 absolute inset-0 w-full h-full"
+        className="z-0 fixed inset-0 w-full h-full"
         squareSize={4}
         gridGap={6}
         color="#8B5CF6"
@@ -35,8 +47,8 @@ const Hero1 = () => {
       {/* Header */}
       <header className="flex justify-between items-center p-6 relative z-10">
         <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg w-8 h-8 flex items-center justify-center font-bold">
-            🐍
+          <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg w-8 h-8 flex items-center justify-center">
+            <Code className="w-5 h-5 text-white" />
           </div>
           <div className="font-bold text-md text-white">TutorPy</div>
         </div>

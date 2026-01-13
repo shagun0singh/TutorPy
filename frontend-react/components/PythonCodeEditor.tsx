@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Code } from "lucide-react";
 
 // Declare Pyodide types for CDN version
 declare global {
@@ -131,7 +131,10 @@ export default function PythonCodeEditor({ initialCode = "# Write your Python co
       {/* Editor Header */}
       <div className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-mono">🐍 Python Editor</span>
+          <span className="text-sm font-mono flex items-center gap-2">
+            <Code className="w-4 h-4" />
+            Python Editor
+          </span>
         </div>
         <button
           onClick={runCode}

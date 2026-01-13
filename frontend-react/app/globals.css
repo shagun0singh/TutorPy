@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure full page coverage */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -58,3 +67,7 @@
   }
 }
 
+/* Override for home page to ensure black background */
+body {
+  background-color: #000000;
+}

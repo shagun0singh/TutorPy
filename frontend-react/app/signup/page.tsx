@@ -30,7 +30,15 @@ export default function SignupPage() {
       if (response.ok) {
         localStorage.setItem("tutorpy_token", data.token);
         localStorage.setItem("tutorpy_user", JSON.stringify(data.user));
-        router.push("/chat");
+        
+        // Check if there's a stored message from home page
+        const firstMessage = localStorage.getItem("tutorpy_first_message");
+        if (firstMessage) {
+          // Keep the message stored, it will be sent in chat page
+          router.push("/chat");
+        } else {
+          router.push("/chat");
+        }
       } else {
         setError(data.error || "Failed to create account");
       }
