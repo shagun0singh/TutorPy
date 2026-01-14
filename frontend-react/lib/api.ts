@@ -1,8 +1,9 @@
 // API utility - handles backend URL configuration
 const getApiUrl = () => {
   // In production, use environment variable
+  // In development, use relative paths (Next.js rewrites handle proxying)
   if (typeof window !== 'undefined') {
-    // Client-side: use environment variable or default
+    // Client-side: use environment variable if set (production), otherwise use relative path (development)
     return process.env.NEXT_PUBLIC_API_URL || '';
   }
   // Server-side: use environment variable

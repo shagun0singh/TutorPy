@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
       // Frontend should call the Railway backend directly
       // But if it reaches here, proxy to backend
       const token = getTokenFromRequest(req);
-      const { message } = await req.json();
+      const body = await req.json();
+      const { message, history } = body;
       
       const backendResponse = await fetch(`${backendUrl}/api/chat`, {
         method: 'POST',
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, history }),
       });
       
       const data = await backendResponse.json();

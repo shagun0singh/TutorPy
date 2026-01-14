@@ -251,7 +251,13 @@ export default function ChatPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({
+          message: userMessage,
+          history: messages.map((m) => ({
+            role: m.type === "user" ? "user" : "assistant",
+            content: m.text,
+          })),
+        }),
       });
 
       console.log('📥 Response status:', response.status);

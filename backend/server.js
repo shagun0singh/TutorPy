@@ -61,7 +61,7 @@ app.use('/api/auth', authRoutes); // Authentication routes (signup, login)
  */
 app.post('/api/chat', auth, async (req, res) => {
     try {
-        const { message } = req.body;
+        const { message, history } = req.body;
         
         // Validate input
         if (!message || typeof message !== 'string') {
@@ -74,37 +74,70 @@ app.post('/api/chat', auth, async (req, res) => {
         }
         
         console.log('📩 Received message:', message);
+        const conversationHistory = Array.isArray(history) ? history : [];
+
+        // Derive current problem from first user message in history or current message
+        const firstUserMessage = conversationHistory.find(m => m && m.role === 'user');
+        const problem =
+            (firstUserMessage && typeof firstUserMessage.content === 'string' && firstUserMessage.content.trim()) ||
+            message ||
+            'Beginner Python practice exercise';
+
+        // Estimate current hint level from past assistant messages containing the word "Hint"
+        const previousHints = conversationHistory.filter(
+            m => m && m.role === 'assistant' && typeof m.content === 'string' && /hint\s*\d*/i.test(m.content)
+        );
+        let level = Math.min(previousHints.length + 1, 4);
+
+        // If user explicitly asks for next hint, bump level (but never above 4)
+        const lowerMessage = message.toLowerCase();
+        if (/\bnext hint\b/.test(lowerMessage) || /\banother hint\b/.test(lowerMessage)) {
+            level = Math.min(level + 1, 4);
+        }
+        if (!level || Number.isNaN(level)) {
+            level = 1;
+        }
         
-        // TutorPy system prompt
-        const systemPrompt = `You are TutorPy, an AI coding tutor.
-Your job is to help users THINK, not solve problems.
-Support only Python.
-First decide if the problem statement is clear.
-If unclear, ask concise clarifying questions about input, output, or constraints.
-If clear, respond with:
-'✅ Thinking mode'
-followed by a short explanation of how to approach the problem step by step.
-Do not provide code.
-Do not provide full algorithms.
-Keep responses concise and encouraging (max 4–5 sentences).`;
-        
-        // Combine system prompt with user message
-        const fullPrompt = `${systemPrompt}\n\nUser: ${message}\n\nAssistant:`;
+        // TutorPy system prompt - friendly hint-focused tutor
+        const systemPrompt = `You are TutorPy, friendly Python coach. Current problem: ${problem} | Hint level: ${level}
+
+Rules:
+- ALWAYS give an actionable hint, NEVER ask the user to clarify or restate the problem.
+- If the user's request is vague, assume they are a beginner working on a simple Python exercise and start from Hint Level 1.
+- Remember the conversation context and build on previous hints and messages, do not restart from scratch.
+- Use progressive hints. If the user says \"next hint\" or similar, move to the next hint level (but never beyond Level 4).
+- If you see error messages, stack traces, or Pyodide runtime errors, focus your hint on debugging those errors.
+- Keep a casual, encouraging tone. Prefer phrases like \"Cool! Try this approach...\" instead of formal questions.
+- Respond in at most 4 short sentences.
+- End every reply with exactly this sentence: \"Paste your code or say 'next hint'.\"`;
         
         let reply;
         
         // Get Groq client (lazy initialization - only when chat is called)
         const groq = getGroqClient();
         
+        // Build Groq messages with conversation memory
+        const groqMessages = [
+            { role: "system", content: systemPrompt },
+            // Map prior history into Groq format
+            ...conversationHistory
+                .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+                .map(m => ({
+                    role: m.role === 'assistant' ? 'assistant' : 'user',
+                    content: m.content,
+                })),
+            {
+                role: "user",
+                content: message,
+            },
+        ];
+
         // Call Groq API
         const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: message }
-            ],
+            messages: groqMessages,
             model: "llama-3.3-70b-versatile",
             temperature: 0.7,
-            max_tokens: 200,
+            max_tokens: 256,
         });
         
         // Extract AI response
